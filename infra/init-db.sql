@@ -379,3 +379,194 @@ CREATE TRIGGER update_notifications_updated_at
 BEFORE UPDATE ON employee.notifications
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- Sample Data for psql / local development
+-- Run this section after the backend seed has created:
+--   demo@example.com, manager@example.com, team.member@example.com
+-- ============================================================================
+
+INSERT INTO employee.employee_profiles (
+    user_id, date_of_birth, designation, work_location, reporting_manager_id,
+    date_of_joining, profile_picture_url, mobile_number
+)
+SELECT u.id, DATE '1990-05-20', 'Senior Software Engineer', 'Mumbai Office', m.id,
+       DATE '2023-01-15', 'https://i.pravatar.cc/150?img=1', '+91-9876543210'
+FROM employee.users u
+LEFT JOIN employee.users m ON m.email = 'manager@example.com'
+WHERE u.email = 'demo@example.com'
+ON CONFLICT (user_id) DO UPDATE SET
+    date_of_birth = EXCLUDED.date_of_birth,
+    designation = EXCLUDED.designation,
+    work_location = EXCLUDED.work_location,
+    reporting_manager_id = EXCLUDED.reporting_manager_id,
+    date_of_joining = EXCLUDED.date_of_joining,
+    profile_picture_url = EXCLUDED.profile_picture_url,
+    mobile_number = EXCLUDED.mobile_number;
+
+INSERT INTO employee.employee_profiles (
+    user_id, date_of_birth, designation, work_location, reporting_manager_id,
+    date_of_joining, profile_picture_url, mobile_number
+)
+SELECT u.id, DATE '1987-08-12', 'Engineering Manager', 'Mumbai Office', NULL,
+       DATE '2020-02-10', 'https://i.pravatar.cc/150?img=12', '+91-9876500001'
+FROM employee.users u
+WHERE u.email = 'manager@example.com'
+ON CONFLICT (user_id) DO UPDATE SET
+    date_of_birth = EXCLUDED.date_of_birth,
+    designation = EXCLUDED.designation,
+    work_location = EXCLUDED.work_location,
+    reporting_manager_id = EXCLUDED.reporting_manager_id,
+    date_of_joining = EXCLUDED.date_of_joining,
+    profile_picture_url = EXCLUDED.profile_picture_url,
+    mobile_number = EXCLUDED.mobile_number;
+
+INSERT INTO employee.employee_profiles (
+    user_id, date_of_birth, designation, work_location, reporting_manager_id,
+    date_of_joining, profile_picture_url, mobile_number
+)
+SELECT u.id, DATE '1994-05-06', 'Software Engineer', 'Mumbai Office', d.id,
+       DATE '2022-05-06', 'https://i.pravatar.cc/150?img=32', '+91-9876500002'
+FROM employee.users u
+LEFT JOIN employee.users d ON d.email = 'demo@example.com'
+WHERE u.email = 'team.member@example.com'
+ON CONFLICT (user_id) DO UPDATE SET
+    date_of_birth = EXCLUDED.date_of_birth,
+    designation = EXCLUDED.designation,
+    work_location = EXCLUDED.work_location,
+    reporting_manager_id = EXCLUDED.reporting_manager_id,
+    date_of_joining = EXCLUDED.date_of_joining,
+    profile_picture_url = EXCLUDED.profile_picture_url,
+    mobile_number = EXCLUDED.mobile_number;
+
+INSERT INTO employee.attendance_records (
+    user_id, attendance_date, check_in_time, check_out_time, status, working_hours, shift_code, remarks
+)
+SELECT
+    u.id,
+    day::date,
+    CASE WHEN EXTRACT(DOW FROM day) IN (0, 6) THEN NULL ELSE (day::date + TIME '09:00') END,
+    CASE WHEN EXTRACT(DOW FROM day) IN (0, 6) THEN NULL ELSE (day::date + TIME '18:00') END,
+    CASE
+      WHEN EXTRACT(DOW FROM day) IN (0, 6) THEN 'week_off'
+      WHEN MOD(EXTRACT(DAY FROM day)::int, 11) = 0 THEN 'absent'
+      ELSE 'present'
+    END,
+    CASE
+      WHEN EXTRACT(DOW FROM day) IN (0, 6) THEN NULL
+      WHEN MOD(EXTRACT(DAY FROM day)::int, 11) = 0 THEN NULL
+      ELSE 9.00
+    END,
+    'GENERAL',
+    NULL
+FROM employee.users u
+CROSS JOIN generate_series(CURRENT_DATE - INTERVAL '29 days', CURRENT_DATE, INTERVAL '1 day') AS day
+WHERE u.email = 'demo@example.com'
+ON CONFLICT (user_id, attendance_date) DO NOTHING;
+
+WITH current_fy AS (
+    SELECT CASE
+        WHEN EXTRACT(MONTH FROM CURRENT_DATE) >= 4 THEN
+            CONCAT(EXTRACT(YEAR FROM CURRENT_DATE)::int, '-', EXTRACT(YEAR FROM CURRENT_DATE)::int + 1)
+        ELSE
+            CONCAT(EXTRACT(YEAR FROM CURRENT_DATE)::int - 1, '-', EXTRACT(YEAR FROM CURRENT_DATE)::int)
+    END AS financial_year
+)
+INSERT INTO employee.leave_balances (
+    user_id, leave_type, financial_year, total_days, used_days, remaining_days
+)
+SELECT
+    u.id,
+    leaves.leave_type,
+    current_fy.financial_year,
+    leaves.total_days,
+    leaves.used_days,
+    leaves.remaining_days
+FROM employee.users u
+CROSS JOIN current_fy
+CROSS JOIN (
+    VALUES
+      ('privilege_leave'::leave_type, 20::numeric, 5::numeric, 15::numeric),
+      ('sick_leave'::leave_type, 10::numeric, 2::numeric, 8::numeric),
+      ('casual_leave'::leave_type, 8::numeric, 1::numeric, 7::numeric),
+      ('compensatory_leave'::leave_type, 5::numeric, 0::numeric, 5::numeric),
+      ('bereavement_leave'::leave_type, 3::numeric, 0::numeric, 3::numeric),
+      ('optional_leave'::leave_type, 2::numeric, 0::numeric, 2::numeric),
+      ('paternity_leave'::leave_type, 5::numeric, 0::numeric, 5::numeric),
+      ('wfh'::leave_type, 10::numeric, 3::numeric, 7::numeric),
+      ('on_duty'::leave_type, 5::numeric, 1::numeric, 4::numeric)
+) AS leaves(leave_type, total_days, used_days, remaining_days)
+WHERE u.email = 'demo@example.com'
+ON CONFLICT (user_id, leave_type, financial_year) DO UPDATE SET
+    total_days = EXCLUDED.total_days,
+    used_days = EXCLUDED.used_days,
+    remaining_days = EXCLUDED.remaining_days;
+
+INSERT INTO employee.leave_requests (
+    user_id, leave_type, start_date, end_date, reason, status, manager_id,
+    manager_remarks, approved_at, rejected_at, attachment_url
+)
+SELECT
+    u.id,
+    'wfh'::leave_type,
+    CURRENT_DATE - INTERVAL '1 day',
+    CURRENT_DATE + INTERVAL '1 day',
+    'Medical appointment and rest',
+    'approved'::leave_request_status,
+    d.id,
+    'Approved for three days',
+    CURRENT_TIMESTAMP,
+    NULL,
+    NULL
+FROM employee.users u
+LEFT JOIN employee.users d ON d.email = 'demo@example.com'
+WHERE u.email = 'team.member@example.com'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO employee.leave_requests (
+    user_id, leave_type, start_date, end_date, reason, status, manager_id,
+    manager_remarks, approved_at, rejected_at, attachment_url
+)
+SELECT
+    d.id,
+    'casual_leave'::leave_type,
+    CURRENT_DATE + INTERVAL '10 days',
+    CURRENT_DATE + INTERVAL '11 days',
+    'Personal work',
+    'pending'::leave_request_status,
+    m.id,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+FROM employee.users d
+LEFT JOIN employee.users m ON m.email = 'manager@example.com'
+WHERE d.email = 'demo@example.com'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO employee.notifications (
+    user_id, type, title, message, metadata, read
+)
+SELECT u.id, n.type, n.title, n.message, n.metadata, n.read
+FROM employee.users u
+CROSS JOIN (
+    VALUES
+      ('payslip'::notification_type, 'Payslip Generated', 'Your monthly salary has been credited to the primary account.', '{"amount":85000}'::jsonb, false),
+      ('leave_approval'::notification_type, 'Leave Approved', 'Your upcoming casual leave request has been approved by your manager.', '{"leaveType":"casual_leave"}'::jsonb, false),
+      ('system_alert'::notification_type, 'Policy Update', 'A new attendance policy notice is available for review.', NULL::jsonb, true)
+) AS n(type, title, message, metadata, read)
+WHERE u.email = 'demo@example.com'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO employee.holidays (holiday_name, holiday_date, description, is_optional)
+VALUES
+    ('New Year''s Day', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 1, 1), 'National Holiday', false),
+    ('Republic Day', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 1, 26), 'National Holiday', false),
+    ('Holi', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 3, 25), 'Festival Holiday', false),
+    ('Good Friday', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 4, 7), 'National Holiday', false),
+    ('Labour Day', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 5, 1), 'National Holiday', false),
+    ('Independence Day', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 8, 15), 'National Holiday', false),
+    ('Gandhi Jayanti', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 10, 2), 'National Holiday', false),
+    ('Diwali', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 11, 1), 'Festival Holiday', false),
+    ('Christmas', MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int, 12, 25), 'National Holiday', false)
+ON CONFLICT (holiday_date) DO NOTHING;

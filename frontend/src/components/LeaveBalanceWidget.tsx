@@ -25,7 +25,17 @@ const LEAVE_TYPE_LABELS: Record<string, string> = {
   on_duty: 'On Duty',
 };
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#a4de6c', '#d084d0', '#82d8d8', '#ffb347', '#ff6b6b'];
+const LEAVE_TYPE_COLORS: Record<string, string> = {
+  privilege_leave: '#2e7d32',
+  sick_leave: '#0288d1',
+  casual_leave: '#f9a825',
+  compensatory_leave: '#6a1b9a',
+  bereavement_leave: '#546e7a',
+  optional_leave: '#00897b',
+  paternity_leave: '#ad1457',
+  wfh: '#3949ab',
+  on_duty: '#ef6c00',
+};
 
 export const LeaveBalanceWidget = () => {
   const [leaveSummary, setLeaveSummary] = useState<LeaveSummary | null>(null);
@@ -59,8 +69,10 @@ export const LeaveBalanceWidget = () => {
   // Prepare data for pie chart (showing remaining days)
   const chartData = leaveEntries
     .map(([type, balance]) => ({
+      type,
       name: LEAVE_TYPE_LABELS[type] || type,
       value: balance.remainingDays,
+      color: LEAVE_TYPE_COLORS[type] || '#757575',
     }))
     .filter((item) => item.value > 0);
 
@@ -87,8 +99,8 @@ export const LeaveBalanceWidget = () => {
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {chartData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      {chartData.map((entry) => (
+                        <Cell key={entry.type} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `${value} days`} />
@@ -118,7 +130,18 @@ export const LeaveBalanceWidget = () => {
                   {leaveEntries.map(([type, balance]) => (
                     <TableRow key={type} sx={{ '&:last-child td': { border: 0 } }}>
                       <TableCell sx={{ fontSize: '0.875rem' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box
+                            sx={{
+                              width: 10,
+                              height: 10,
+                              borderRadius: '50%',
+                              backgroundColor: LEAVE_TYPE_COLORS[type] || '#757575',
+                              flexShrink: 0,
+                            }}
+                          />
                         {LEAVE_TYPE_LABELS[type] || type}
+                        </Box>
                       </TableCell>
                       <TableCell align="right" sx={{ fontSize: '0.875rem' }}>
                         {balance.usedDays}/{balance.totalDays}

@@ -66,6 +66,16 @@ Demo credentials:
 - Dashboard quick-access tile user preference persistence is not yet implemented (currently defaults are returned).
 - Notification text such as payslip-generated content depends on notification data population from later payroll module.
 
+## Environment Files
+- `/.env.local` is used for backend and local infrastructure defaults.
+- `/frontend/.env.local` is used by Vite for frontend runtime values such as `VITE_API_BASE_URL` and `VITE_SESSION_TIMEOUT`.
+- These files are intentionally separate so future modules can add environment-specific settings without coupling frontend and backend configuration.
+
+## Leave Balance Colors
+- The colors in the leave balance chart are only used to distinguish leave categories visually.
+- They do not change the business meaning of the leave types.
+- The table remains the source of the exact leave type names and balances.
+
 ## Key Workspace Scripts
 - npm run install:all
 - npm run dev:backend
