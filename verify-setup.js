@@ -29,7 +29,8 @@ if (allGood) console.log('  ✓ All directories present\n');
 // Check 2: Configuration files exist
 console.log('✓ Checking configuration files...');
 const configFiles = [
-  'backend/.env.local',
+  'backend/.env.example',
+  'frontend/.env.example',
   'backend/package.json',
   'backend/tsconfig.json',
   'frontend/package.json',
@@ -43,6 +44,19 @@ for (const file of configFiles) {
   }
 }
 if (allGood) console.log('  ✓ All configuration files present\n');
+
+// Ensure local env files exist for fresh clones
+const envBootstrapPairs = [
+  { target: 'backend/.env.local', example: 'backend/.env.example' },
+  { target: 'frontend/.env.local', example: 'frontend/.env.example' },
+];
+
+for (const pair of envBootstrapPairs) {
+  if (!fs.existsSync(pair.target) && fs.existsSync(pair.example)) {
+    fs.copyFileSync(pair.example, pair.target);
+    console.log(`  ✓ Created ${pair.target} from ${pair.example}`);
+  }
+}
 
 // Check 3: PostgreSQL connection
 console.log('✓ Checking PostgreSQL connection...');
@@ -66,16 +80,31 @@ try {
 }
 
 // Check 5: Environment variables
-console.log('✓ Checking environment variables in .env.local...');
-const envPath = 'backend/.env.local';
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, 'utf-8');
-  const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET'];
+console.log('✓ Checking environment variables in .env.local files...');
+const backendEnvPath = 'backend/.env.local';
+const frontendEnvPath = 'frontend/.env.local';
+
+if (fs.existsSync(backendEnvPath)) {
+  const envContent = fs.readFileSync(backendEnvPath, 'utf-8');
+  const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME', 'JWT_SECRET', 'API_PORT'];
   for (const envVar of requiredEnvVars) {
     if (envContent.includes(envVar)) {
-      console.log(`  ✓ ${envVar} configured`);
+      console.log(`  ✓ backend ${envVar} configured`);
     } else {
-      console.log(`  ✗ ${envVar} not configured`);
+      console.log(`  ✗ backend ${envVar} not configured`);
+      allGood = false;
+    }
+  }
+}
+
+if (fs.existsSync(frontendEnvPath)) {
+  const envContent = fs.readFileSync(frontendEnvPath, 'utf-8');
+  const requiredFrontendEnvVars = ['VITE_API_BASE_URL', 'VITE_SESSION_TIMEOUT'];
+  for (const envVar of requiredFrontendEnvVars) {
+    if (envContent.includes(envVar)) {
+      console.log(`  ✓ frontend ${envVar} configured`);
+    } else {
+      console.log(`  ✗ frontend ${envVar} not configured`);
       allGood = false;
     }
   }

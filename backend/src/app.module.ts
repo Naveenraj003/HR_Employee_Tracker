@@ -40,7 +40,7 @@ const getJwtExpiresIn = () => {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: ['.env.local', '.env.example', '.env'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

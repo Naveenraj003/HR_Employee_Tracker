@@ -12,6 +12,31 @@ if (-not (Test-Path "backend") -or -not (Test-Path "frontend")) {
     exit 1
 }
 
+# Step 0: Ensure local environment files exist
+Write-Host "[0/5] Preparing local environment files..." -ForegroundColor Yellow
+
+$backendEnv = Join-Path $PWD "backend\.env.local"
+$backendEnvExample = Join-Path $PWD "backend\.env.example"
+$frontendEnv = Join-Path $PWD "frontend\.env.local"
+$frontendEnvExample = Join-Path $PWD "frontend\.env.example"
+
+if (-not (Test-Path $backendEnv) -and (Test-Path $backendEnvExample)) {
+    Copy-Item $backendEnvExample $backendEnv
+    Write-Host "✅ Created backend/.env.local from backend/.env.example" -ForegroundColor Green
+}
+
+if (-not (Test-Path $frontendEnv) -and (Test-Path $frontendEnvExample)) {
+    Copy-Item $frontendEnvExample $frontendEnv
+    Write-Host "✅ Created frontend/.env.local from frontend/.env.example" -ForegroundColor Green
+}
+
+if (-not (Test-Path $backendEnv) -or -not (Test-Path $frontendEnv)) {
+    Write-Host "ERROR: Missing environment files. Ensure backend/.env.example and frontend/.env.example exist." -ForegroundColor Red
+    exit 1
+}
+Write-Host "✅ Local environment files ready" -ForegroundColor Green
+Write-Host ""
+
 # Step 1: Verify PostgreSQL Connection
 Write-Host "[1/5] Verifying PostgreSQL connection..." -ForegroundColor Yellow
 $pgTest = psql -U hospital_user -d hospital_tracker_dev -c "SELECT 1;" 2>&1
@@ -72,6 +97,7 @@ Write-Host ""
 Write-Host "  Login with:" -ForegroundColor Yellow
 Write-Host "  Email: demo@example.com" -ForegroundColor White
 Write-Host "  Password: password123" -ForegroundColor White
+Write-Host "  Backend API: http://localhost:3002" -ForegroundColor White
 Write-Host ""
 Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host "✅ Ready to run! See instructions above." -ForegroundColor Green

@@ -5,6 +5,10 @@ import * as path from 'path';
 
 dotenv.config({ path: path.resolve(process.cwd(), '..', '.env.local') });
 
+if (!process.env.DB_HOST) {
+  dotenv.config({ path: path.resolve(process.cwd(), '..', '.env.example') });
+}
+
 async function main() {
   const dbHost = process.env.DB_HOST || 'localhost';
   const dbPort = parseInt(process.env.DB_PORT || '5432', 10);

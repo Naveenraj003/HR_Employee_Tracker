@@ -16,6 +16,8 @@ psql -U postgres -c "CREATE DATABASE hospital_tracker_dev OWNER hospital_user;"
 npm run setup:db
 ```
 
+If you are setting up from a fresh clone, run `setup.ps1` first. It copies `backend/.env.example` to `backend/.env.local` and `frontend/.env.example` to `frontend/.env.local` if they are missing.
+
 ### 2. Install all dependencies in one command
 ```powershell
 npm run install:all
@@ -70,8 +72,10 @@ These accounts are created by `npm run seed` and are meant for testing role-base
 - Notification text such as payslip-generated content depends on notification data population from later payroll module.
 
 ## Environment Files
-- `/.env.local` is used for backend and local infrastructure defaults.
-- `/frontend/.env.local` is used by Vite for frontend runtime values such as `VITE_API_BASE_URL` and `VITE_SESSION_TIMEOUT`.
+- Backend defaults to port `3002` so the frontend can connect without extra env setup.
+- `backend/.env.local` stores backend and local infrastructure defaults.
+- `frontend/.env.local` is used by Vite for frontend runtime values such as `VITE_API_BASE_URL` and `VITE_SESSION_TIMEOUT`.
+- Per-app templates are stored in `backend/.env.example` and `frontend/.env.example`.
 - These files are intentionally separate so future modules can add environment-specific settings without coupling frontend and backend configuration.
 
 ## Leave Balance Colors

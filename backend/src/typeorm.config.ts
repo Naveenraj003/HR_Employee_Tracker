@@ -2,8 +2,15 @@ import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
-// Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+// Load environment variables with a safe fallback for fresh clones
+dotenv.config({
+  path: path.resolve(__dirname, '../.env.local'),
+  override: false,
+});
+
+if (!process.env.DB_HOST) {
+  dotenv.config({ path: path.resolve(__dirname, '../.env.example'), override: false });
+}
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
