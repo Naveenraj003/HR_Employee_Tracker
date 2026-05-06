@@ -34,7 +34,7 @@ export const LeaveBalanceWidget = () => {
   useEffect(() => {
     const fetchLeaveSummary = async () => {
       try {
-        const response = await apiClient.get('/dashboard/leave-summary');
+        const response = await apiClient.get<LeaveSummary>('/dashboard/leave-summary');
         setLeaveSummary(response.data);
       } catch (error) {
         console.error('Failed to fetch leave summary:', error);
@@ -68,7 +68,7 @@ export const LeaveBalanceWidget = () => {
     <Card sx={{ mb: 3 }}>
       <CardContent>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-          🏖️ Leave Balance
+          Leave Balance
         </Typography>
 
         <Grid container spacing={3}>
@@ -87,7 +87,7 @@ export const LeaveBalanceWidget = () => {
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {chartData.map((entry, index) => (
+                      {chartData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>

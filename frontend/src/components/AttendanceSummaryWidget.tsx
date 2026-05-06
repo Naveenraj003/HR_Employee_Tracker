@@ -24,7 +24,7 @@ export const AttendanceSummaryWidget = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchAttendanceSummary = async () => {
-    const response = await apiClient.get('/dashboard/attendance-summary');
+    const response = await apiClient.get<AttendanceSummary>('/dashboard/attendance-summary');
     setSummary(response.data);
   };
 
@@ -86,9 +86,7 @@ export const AttendanceSummaryWidget = () => {
   return (
     <Card sx={{ mb: 3 }}>
       <CardContent>
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-          📊 Attendance Summary
-        </Typography>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>Attendance Summary</Typography>
 
         {/* Today's Status */}
         <Grid container spacing={2} sx={{ mb: 3 }}>

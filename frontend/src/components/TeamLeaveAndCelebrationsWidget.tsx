@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, Typography, Tabs, Tab, List, ListItem, ListItemText, Chip, Stack, Grid } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/apiClient';
-import { format, isWithinInterval, isToday, isPast } from 'date-fns';
+import { format } from 'date-fns';
 import { Cake, Handshake, Event } from '@mui/icons-material';
 
 interface TeamLeave {
@@ -46,10 +46,10 @@ export const TeamLeaveAndCelebrationsWidget = () => {
     const fetchData = async () => {
       try {
         const [teamRes, celebRes, holidayRes, leaveRes] = await Promise.all([
-          apiClient.get('/dashboard/team-leaves'),
-          apiClient.get('/dashboard/celebrations'),
-          apiClient.get('/dashboard/holidays'),
-          apiClient.get('/dashboard/recent-leave-requests'),
+          apiClient.get<TeamLeave[]>('/dashboard/team-leaves'),
+          apiClient.get<Celebration[]>('/dashboard/celebrations'),
+          apiClient.get<Holiday>('/dashboard/holidays'),
+          apiClient.get<LeaveRequest[]>('/dashboard/recent-leave-requests'),
         ]);
 
         setTeamLeaves(teamRes.data);
@@ -70,7 +70,7 @@ export const TeamLeaveAndCelebrationsWidget = () => {
     return null;
   }
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -86,7 +86,7 @@ export const TeamLeaveAndCelebrationsWidget = () => {
     <Card sx={{ mb: 3 }}>
       <CardContent>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-          👥 Team & Celebrations
+          Team and Celebrations
         </Typography>
 
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
@@ -169,8 +169,8 @@ export const TeamLeaveAndCelebrationsWidget = () => {
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#666' }}>
                           {celebration.celebrationType === 'birthday'
-                            ? '🎂 Birthday'
-                            : '🎉 Work Anniversary'}{' '}
+                            ? 'Birthday'
+                            : 'Work Anniversary'}{' '}
                           - {format(new Date(celebration.date), 'dd MMM')}
                         </Typography>
                       </Box>

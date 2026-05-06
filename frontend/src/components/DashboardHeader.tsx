@@ -23,7 +23,7 @@ export const DashboardHeader = () => {
   useEffect(() => {
     const fetchHeaderData = async () => {
       try {
-        const response = await apiClient.get('/dashboard/header');
+        const response = await apiClient.get<HeaderData>('/dashboard/header');
         setHeaderData(response.data);
       } catch (error) {
         console.error('Failed to fetch header data:', error);
@@ -82,7 +82,7 @@ export const DashboardHeader = () => {
               />
             </Stack>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              📍 {headerData.workLocation} | 👔 Manager: {headerData.reportingManager}
+              {headerData.workLocation} | Manager: {headerData.reportingManager}
             </Typography>
           </Box>
 

@@ -2,9 +2,7 @@ import {
   Box,
   Popover,
   List,
-  ListItem,
   ListItemButton,
-  ListItemText,
   Badge,
   IconButton,
   Typography,
@@ -13,10 +11,17 @@ import {
   CircularProgress,
   Stack,
 } from '@mui/material';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import ClearIcon from '@mui/icons-material/Clear';
+import PaidIcon from '@mui/icons-material/Paid';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CakeIcon from '@mui/icons-material/Cake';
+import CelebrationIcon from '@mui/icons-material/Celebration';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import { apiClient } from '../api/apiClient';
 import { format } from 'date-fns';
 
@@ -47,7 +52,7 @@ export const NotificationPopover = ({ unreadCount }: { unreadCount: number }) =>
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/dashboard/notifications');
+      const response = await apiClient.get<Notification[]>('/dashboard/notifications');
       setNotifications(response.data || []);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
@@ -72,15 +77,15 @@ export const NotificationPopover = ({ unreadCount }: { unreadCount: number }) =>
   const id = open ? 'notification-popover' : undefined;
 
   const getNotificationIcon = (type: string) => {
-    const iconMap: Record<string, { emoji: string; color: string }> = {
-      payslip: { emoji: '💰', color: '#4caf50' },
-      leave_approval: { emoji: '✅', color: '#2196f3' },
-      leave_rejection: { emoji: '❌', color: '#f44336' },
-      system_alert: { emoji: '⚠️', color: '#ff9800' },
-      birthday: { emoji: '🎂', color: '#e91e63' },
-      anniversary: { emoji: '🎉', color: '#9c27b0' },
+    const iconMap: Record<string, { icon: JSX.Element; color: string }> = {
+      payslip: { icon: <PaidIcon fontSize="small" />, color: '#4caf50' },
+      leave_approval: { icon: <CheckCircleIcon fontSize="small" />, color: '#2196f3' },
+      leave_rejection: { icon: <CancelIcon fontSize="small" />, color: '#f44336' },
+      system_alert: { icon: <WarningAmberIcon fontSize="small" />, color: '#ff9800' },
+      birthday: { icon: <CakeIcon fontSize="small" />, color: '#e91e63' },
+      anniversary: { icon: <CelebrationIcon fontSize="small" />, color: '#9c27b0' },
     };
-    return iconMap[type] || { emoji: '📬', color: '#757575' };
+    return iconMap[type] || { icon: <MailOutlineIcon fontSize="small" />, color: '#757575' };
   };
 
   const formatAmount = (metadata: Record<string, any> | null): string => {
@@ -157,7 +162,7 @@ export const NotificationPopover = ({ unreadCount }: { unreadCount: number }) =>
         ) : (
           <List sx={{ maxHeight: 400, overflow: 'auto', p: 0 }}>
             {notifications.map((notification, index) => {
-              const { emoji, color } = getNotificationIcon(notification.type);
+              const { icon, color } = getNotificationIcon(notification.type);
               const amount = formatAmount(notification.metadata);
               const timeAgo = format(new Date(notification.createdAt), 'MMM dd, HH:mm');
 
@@ -176,7 +181,22 @@ export const NotificationPopover = ({ unreadCount }: { unreadCount: number }) =>
                     onClick={(e) => handleMarkAsRead(notification.id, e)}
                   >
                     <Box sx={{ display: 'flex', gap: 1.5, width: '100%' }}>
-                      <Box sx={{ fontSize: '1.5rem', mt: 0.5, flexShrink: 0 }}>{emoji}</Box>
+                      <Box
+                        sx={{
+                          mt: 0.25,
+                          flexShrink: 0,
+                          width: 32,
+                          height: 32,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: `${color}14`,
+                          color,
+                        }}
+                      >
+                        {icon}
+                      </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
                           <Typography
