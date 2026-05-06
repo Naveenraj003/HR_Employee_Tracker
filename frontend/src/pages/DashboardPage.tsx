@@ -45,7 +45,9 @@ export const DashboardPage = () => {
           </Box>
 
           {/* Leave Balance */}
-          <LeaveBalanceWidget />
+          <Box sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}>
+            <LeaveBalanceWidget />
+          </Box>
 
           {/* Team & Celebrations */}
           <Box sx={{ gridColumn: { xs: '1', md: '1 / -1' } }}>
