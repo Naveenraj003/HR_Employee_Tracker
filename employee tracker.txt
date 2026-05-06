@@ -1,0 +1,338 @@
+ 
+BUSINESS REQUIREMENTS DOCUMENT 
+Hospital Employee Tracker (HF Software) 
+HR & Workforce Management Platform 
+ 
+ 
+Document Version 	1.0 
+Prepared By 	Business Analysis Team 
+Date 	April 2026 
+Status 	Draft – For Review 
+Document Type 	Business Requirements Document (BRD) 
+ 
+CONFIDENTIAL — FOR INTERNAL USE ONLY 
+1.	Document Overview 
+ 
+ 
+1.1	Purpose 
+This Business Requirements Document (BRD) describes the functional and non-functional requirements for the Hospital Employee Tracker – a comprehensive HR and workforce management platform (HF Software) built specifically for hospital and healthcare organisations. The document serves as the authoritative reference for design, development, testing, and stakeholder sign-off. 
+ 
+1.2	Scope 
+The system covers the complete employee lifecycle within a hospital environment – from daily attendance tracking and leave management to payroll submissions, profile maintenance, and resignation processing. The platform will be accessible via a secure web-based interface with role-based access controls for employees, managers, and HR administrators. 
+ 
+Term / Acronym 	Definition 
+BRD 	Business Requirements Document 
+HF 	HF Software – the product brand 
+HRIS 	Human Resource Information System 
+MFA 	Multi-Factor Authentication 
+UAN 	Universal Account Number (PF-related) 
+1.3	Document Information 
+ 
+Project Name 	Hospital Employee Tracker (HF Software) 
+Document ID 	BRD-HF-2026-001 
+Version 	1.0 – Initial Draft 
+Prepared By 	Business Analysis Team 
+Reviewed By 	HR Head / IT Manager 
+Approved By 	Project Sponsor 
+Effective Date 	April 2026 
+Classification 	Confidential – Internal Use Only 
+ 
+1.4	Definitions & Acronyms 
+ 
+Term / Acronym 	Definition 
+ESIC 	Employees' State Insurance Corporation 
+OD 	On Duty 
+WFH 	Work From Home 
+DOJ 	Date of Joining 
+PAN 	Permanent Account Number 
+ 
+ 	 
+ 
+2.	Stakeholders 
+ 
+Stakeholder 	Role 	Interest / Responsibility 
+Hospital Management 	Project Sponsor 	Approve requirements; fund the project 
+HR Department 	Primary User 	Manage employee records, leave, payroll 
+Department Managers 	Approver 	Approve attendance, leaves, resignations 
+Hospital Employees 	End User 	Submit requests, view payslips, self-service 
+IT / Development Team 	Technical Owner 	Build, deploy, and maintain the system 
+Finance / Payroll 	Consumer 	Receive processed payroll and tax data 
+Compliance / Legal 	Auditor 	Ensure statutory compliance (PF, ESIC, Tax) 
+ 
+3.	Business Objectives 
+ 
+The Hospital Employee Tracker is commissioned to achieve the following strategic objectives: 
+ 
+	▪ 	Digitise and centralise all HR operations across the hospital, eliminating paper-based processes. 
+	▪ 	Provide real-time attendance visibility and reduce manual payroll errors. 
+▪ Empower employees with self-service capabilities – leave applications, document access, and profile updates. 
+▪ Ensure full statutory compliance with PF, ESIC, Income Tax (old & new regime), and other labour laws. 
+▪ 	Enable managers to make informed decisions through dashboards, visualisations, and approval workflows. 
+▪ 	Support organisational transparency through automated celebrations, leave visibility, and holiday management. 
+ 
+ 	 
+4.	System Modules Overview 
+ 
+# 	Module Name 	Description 
+1 	Authentication & Security 	Login, MFA, password management 
+2 	Employee Dashboard 	Personalised home screen with key widgets 
+3 	Employee Profile 	Personal, communication, and education details 
+4 	Attendance Management 	Check-in/out, shift, calendar, regularisation 
+5 	Leave Management 	Leave types, requests, balances, approvals 
+6 	Payroll & Tax Submission 	Payslip history, IT planner, bank accounts 
+7 	Documents 	Nominee and personal document management 
+8 	HR Corner 	Resignation, requests, and HR communications 
+9 	Notifications 	Payslip alerts, approvals, system events 
+10 	Reports & Filters 	Configurable dashboard widgets and data exports 
+  	  
+5.	Functional Requirements 
+ 
+5.1	Authentication & Security 
+The system must support secure, multi-layered access for all user roles. 
+ 
+Req. ID 	Requirement 	Priority 
+AUTH-01 	The system shall provide a login page with username/email and password fields. 	High 
+AUTH-02 	The system shall support Multi-Factor Authentication (MFA) for all users. 	High 
+AUTH-03 	Users shall be able to change passwords from the profile menu. 	High 
+AUTH-04 	The system shall provide a secure logout function accessible from the header. 	High 
+AUTH-05 	Session timeout shall log the user out automatically after inactivity. 	Medium 
+ 
+5.2	Employee Dashboard 
+The dashboard is the default landing screen post-login. It provides a consolidated, real-time view of the employee's key data. 
+ 
+5.2.1	Header Bar 
+▪ 	Display employee profile picture (avatar or cartoon), employee code, role, work location, and reporting manager name. 
+	▪ 	Show current date, running time, and day of the week. 
+	▪ 	Display a notification area showing messages such as 'Payslip Generated' with amount credited. 
+	▪ 	Provide a user menu with options: Change Password, MFA Settings, and Logout. 
+ 
+5.2.2	Welcome & Quick-Access Tiles 
+The dashboard shall display a personalised welcome greeting followed by up to five configurable quickaccess tiles. A filter mechanism shall allow the employee to choose up to three tiles from the following options: 
+ 
+Tile 	Linked Module 	Description 
+Apply Leave 	Leave Request Module 	Shortcut to submit a new leave request 
+View Attendance 	Attendance Module 	Quick view of attendance records 
+Payment History 	Payroll Module 	Access to past payslips and payment records 
+My Documents 	Documents Module 	View nominee and personal documents 
+ 
+ 
+5.2.3	Attendance Summary Widget 
+	▪ 	Display first check-in time and last check-out time for the current day. 
+	▪ 	Show total working hours for the current day. 
+	▪ 	Provide a check-in / check-out toggle button (on/off method). 
+	▪ 	Visualise working days for the past 30 days. 
+	▪ 	Show average hours per day and total working hours for the current month. 
+ 
+5.2.4	Leave Overview Widget 
+A visual representation (e.g. donut / bar chart) of leave balances must be displayed for the following leave types: 
+ 
+Leave Type 	Display 
+Privilege Leave 	Remaining days 
+Sick Leave 	Remaining days 
+Casual Leave 	Remaining days 
+Bereavement Leave 	Remaining days 
+Paternity Leave 	Remaining days 
+Optional Leave 	Remaining days 
+Work From Home (WFH) 	Remaining days 
+On Duty (OD) 	Remaining days 
+ 
+5.2.5	Team Leave & Celebrations Widget 
+	▪ 	Display team members currently on leave. 
+	▪ 	Show upcoming employee birthdays and work anniversaries with employee names visible to all staff. 
+▪ 	Display a holiday calendar showing all company holidays for the current year, organised month-wise with dates and descriptions. 
+	▪ 	Show recent leave requests submitted by the logged-in employee. 
+ 
+ 	 
+5.3	Employee Profile 
+The profile module provides a read-only summary view and an editable full-profile form, organised across three sub-sections. 
+ 
+5.3.1	Profile Summary (Read-Only Header) 
+	▪ 	Display: Employee Full Name, Employee Code, and Date of Joining (DOJ). 
+	▪ 	A Save button shall be enabled only when changes are made. 
+ 
+5.3.2	General Information 
+ 
+Field 	Type 	Notes 
+Profile Picture 	Upload 	Avatar or photograph upload 
+Full Name 	Text 	Editable 
+Mobile Number 	Text 	Primary contact number 
+Gender 	Dropdown 	Male / Female / Other 
+Personal Email 	Email 	 
+Official Email 	Email 	Read-only / HR-set 
+Date of Birth 	Date 	As per Aadhaar 
+Father's Name 	Text 	 
+Blood Group 	Dropdown 	 
+Aadhaar Number 	Text 	Masked display 
+PAN Number 	Text 	Masked display 
+UAN 	Text 	PF Universal Account Number 
+ESIC Number 	Text 	 
+PF Number 	Text 	 
+Is Differently Abled 	Toggle 	Yes / No 
+ 
+5.3.3	Communication Details 
+	▪ 	Emergency contact number and emergency contact person name. 
+	▪ 	Option: Permanent address same as present address (auto-fill toggle). 
+	▪ 	Present address: Lines 1–3, Country (dropdown), State (dropdown), City, Pincode. 
+	▪ 	Permanent address: Lines 1–3, Country (dropdown), State (dropdown), City, Pincode. 
+ 
+5.3.4	Education Details 
+	▪ 	Add Education button to enter past education records. 
+	▪ 	Fields: Graduation Type, Education Degree, Year of Passing, Scoring Value. 
+	▪ 	Existing records displayed in a table with an Edit/Delete action column. 
+  	 
+ 
+5.4	Attendance Management 
+The Attendance module provides complete daily tracking, shift management, calendar view, and leave/OD request workflows. 
+ 
+5.4.1	Attendance View & Shift 
+	▪ 	Filter by Period From and Period To (date range selectors). 
+	▪ 	Display a table with: Attendance Date, Shift Code, Shift Name, Start Time, End Time. 
+	▪ 	A Shift Change Request button shall allow employees to request a shift modification. 
+ 
+5.4.2	Attendance Calendar 
+An editable calendar view shall colour-code attendance status using the following legend: 
+ 
+Status 	Colour Indicator 
+Present 	Green 
+Absent 	Red 
+Week Off 	Light Grey 
+Work on Week Off 	Orange 
+Holiday 	Blue 
+Permission 	Yellow 
+Approved Leave / OD / WFH 	Dark Green 
+Applied Leave / OD / WFH 	Amber 
+ 
+5.4.3	Attendance Regularisation 
+Four workflow sections manage regularisation requests: 
+ 
+Section 	Key Fields 
+Pending 	Employee Name, Manager Name, Requested Date, Requested On, Status, Remarks, Cancel button 
+Approved 	Above + Approved On, Approved By, Approver Remarks 
+Cancelled 	Above + Cancelled On, Status, Remarks 
+Rejected 	Above + Rejected On, Rejected By, Validator Remarks 
+All four sections shall include a Refresh button. 
+ 
+5.4.4	Requests (Permissions / OD / WFH) 
+	▪ 	Filter by: Employee Code, Date Range, Status. 
+▪ 	Display table: Date, Requested On, Start Time, End Time, Requested Time, Manager Remarks, Status, Action. 
+	▪ 	A Search Now button triggers filtered results; Refresh reloads the grid. 
+ 
+5.5	Leave Management 
+The leave module (accessible from the dashboard quick-link) handles all leave types with an approval workflow. Leave types managed: Privilege Leave, Sick Leave, Casual Leave, Compensatory Leave, Bereavement Leave, Optional Leave, WFH, Paternity Leave, and On Duty. 
+	▪ 	Employees can apply for leave specifying type, dates, reason, and attachment. 
+	▪ 	Managers receive a notification and can Approve or Reject with remarks. 
+	▪ 	Leave balance is updated automatically after approval. 
+	▪ 	Dashboard leave overview widget reflects real-time balances. 
+ 
+ 	  
+5.6	Payroll & Tax Submission 
+ 
+5.6.1	Payment History 
+	▪ 	Employees can view a chronological list of all payslips. 
+	▪ 	Each payslip record displays: Pay Period, Amount Credited, and a Download option. 
+ 
+5.6.2	Tax Planner (IT Submission) 
+The Tax Planner enables employees to declare investment savings for the financial year. The screen must display: 
+ 
+Field / Section 	Description 
+Employee Info 	Name, Code, Designation, Date of Birth, View Slip 
+Financial Year 	Dropdown – current and past financial years 
+Tax Mode 	Toggle: New Regime / Old Regime 
+Total Qualifying Amount 	Auto-calculated from declarations 
+Total Invested Amount 	Sum of declared investments 
+Preview Investment 	Summary preview before final submission 
+My Tax Calculator 	Interactive tool to estimate tax liability 
+Medi-Claim Deductions 	Section 80D declarations 
+House Rent Allowance (HRA) 	HRA calculation inputs 
+House Property 	Interest on home loan, Section 24 
+Other Income 	Any additional income declarations 
+ 
+5.6.3	Bank Account Management 
+Employees can manage multiple bank accounts. Display format includes: 
+	▪ 	Employee name and code displayed at the top of the section. 
+▪ 	Fields: Bank Name, Account Number, IFSC Code, Is Default (toggle), Status (Approved / Not Approved). 
+	▪ 	Action buttons: Edit and Download. 
+	▪ 	Add Bank button to register a new account; Save button to persist changes. 
+ 
+5.7	Document Management 
+	▪ 	Employees can upload, view, and download personal and nominee documents. 
+	▪ 	Supported file formats: PDF, JPG, JPEG, PNG. 
+	▪ 	Documents accessible from the 'My Documents' dashboard quick-link. 
+ 
+ 	 
+5.8	HR Corner & Resignation 
+The HR Corner provides self-service HR functions including access to company policies and the resignation submission workflow. 
+ 
+5.8.1	Resignation Submission 
+ 
+Field 	Details 
+Employee Name 	Auto-populated from profile 
+Employee Code 	Auto-populated 
+Designation 	Auto-populated 
+Department 	Auto-populated 
+Date of Birth 	Auto-populated 
+Notice Period 	System-configured (e.g. 60 calendar days) 
+Last Working Date 	Auto-calculated based on submission date + notice period 
+Reason(s) 	Free-text or dropdown selection 
+Select Last Working Date 	Date picker – subject to notice period policy 
+Remarks 	Optional free-text 
+Upload Attachment 	Supports PDF, JPG, JPEG, PNG – max size TBD 
+Submit Resignation 	Final submission button with confirmation dialog 
+ 
+On submission, the system shall notify the employee's direct manager and HR department. The notice period calculation shall automatically determine the last working date based on the submission date. 
+ 
+ 	 
+6.	Non-Functional Requirements 
+ 
+ 
+Category 	Requirement 
+Performance 	Dashboard and module pages shall load within 3 seconds on a standard broadband connection. 
+Security 	All data in transit shall be encrypted using TLS 1.2 or higher. Sensitive fields (Aadhaar, PAN) shall be masked in the UI. 
+Availability 	The system shall maintain 99.5% uptime (excluding scheduled maintenance windows). 
+Scalability 	The platform shall support concurrent usage by all hospital employees without degradation. 
+Accessibility 	The interface shall be responsive and compatible with modern browsers (Chrome, Edge, Firefox, Safari). 
+Audit Trail 	All key actions (approvals, rejections, submissions, profile changes) shall be logged with timestamp and user identity. 
+Data Retention 	Employee records shall be retained for a minimum of 7 years in line with statutory requirements. 
+Localisation 	Date formats shall follow DD-MM-YYYY. Currency shall display in INR (₹). 
+ 
+7.	Assumptions & Constraints 
+ 
+ 
+7.1	Assumptions 
+▪ 	Each hospital employee will have a unique Employee Code assigned by HR prior to system onboarding. 
+	▪ 	A single reporting-manager hierarchy exists; multi-level approval chains are out of scope for v1.0. 
+▪ 	All statutory identifiers (PAN, Aadhaar, UAN, ESIC, PF) are already captured or will be collected during profile setup. 
+▪ Integration with a third-party payroll engine is a Phase 2 initiative; v1.0 covers display and submission only. 
+	▪ 	Internet connectivity is available at all workstations used by employees. 
+ 
+7.2	Constraints 
+▪ 	The project must comply with the Information Technology Act, 2000 and applicable data protection regulations. 
+	▪ 	Biometric hardware integration is out of scope for the initial release. 
+	▪ 	Mobile application development is planned for Phase 2; v1.0 is a web-responsive application only. 
+	▪ 	Password policies must meet a minimum of 8 characters with complexity requirements. 
+ 
+ 	 
+8.	Risk Register 
+ 
+ 
+Risk ID 	Risk Description 	Likelihood 	Impact 	Mitigation 
+R-01 	Incomplete employee data migration from legacy systems 	Medium 	High 	Data cleansing exercise before go-live; dedicated migration UAT phase 
+R-02 	Low user adoption due to change resistance 	Medium 	Medium 	Training workshops; champion network; intuitive UI design 
+R-03 	Data privacy breach or unauthorised access 	Low 	High 	MFA enforcement; rolebased access control; regular security audits 
+R-04 	Statutory compliance changes (tax slabs, PF rules) 	Medium 	High 	Configurable tax engine; dedicated compliance 
+review cycle 
+R-05 	Scope creep delaying go-live 	High 	Medium 	Strict change control process; MoSCoW 
+prioritisation 
+ 
+9.	Document Approval & Sign-Off 
+ 
+By signing below, the stakeholders confirm that they have reviewed and accepted this Business Requirements Document as the baseline for development. 
+ 
+Name 	Role 	Signature 	Date 
+ 	Project Sponsor 	 	 
+ 	HR Head 	 	 
+ 	IT Manager 	 	 
+ 	Development Lead 	 	 
+ 	QA Lead 	 	 
+ 
+— END OF DOCUMENT — 

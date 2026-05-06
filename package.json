@@ -1,0 +1,13 @@
+{
+  "name": "hospital-employee-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Workspace scripts for Hospital Employee Tracker",
+  "scripts": {
+    "install:all": "npm --prefix backend install --legacy-peer-deps && npm --prefix frontend install",
+    "dev:backend": "npm --prefix backend run start:dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "seed": "npm --prefix backend run seed",
+    "setup:db": "psql -U hospital_user -d hospital_tracker_dev -f infra/init-db.sql"
+  }
+}

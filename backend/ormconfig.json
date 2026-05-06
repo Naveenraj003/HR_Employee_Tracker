@@ -1,0 +1,13 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "hospital_user",
+  "password": "hospital_password",
+  "database": "hospital_tracker_dev",
+  "entities": ["src/modules/**/entities/*.entity.ts"],
+  "migrations": ["src/database/migrations/*.ts"],
+  "subscribers": [],
+  "synchronize": false,
+  "logging": false
+}
