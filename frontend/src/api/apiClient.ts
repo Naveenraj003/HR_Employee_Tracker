@@ -96,6 +96,10 @@ class ApiClient {
     return this.client.post('/auth/mfa/verify', { code });
   }
 
+  verifyLoginMfa(mfaToken: string, code: string) {
+    return this.client.post('/auth/mfa/login-verify', { mfaToken, code });
+  }
+
   getCurrentUser() {
     return this.client.get('/auth/me');
   }

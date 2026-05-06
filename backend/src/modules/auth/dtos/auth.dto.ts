@@ -30,8 +30,10 @@ export class VerifyMfaDto {
 }
 
 export class AuthResponseDto {
-  accessToken: string;
-  refreshToken: string;
+  accessToken?: string;
+  refreshToken?: string;
+  mfaToken?: string;
+  mfaRequired: boolean;
   user: {
     id: number;
     email: string;
@@ -43,6 +45,16 @@ export class AuthResponseDto {
     };
     mfaRequired: boolean;
   };
+}
+
+export class VerifyLoginMfaDto {
+  @IsNotEmpty()
+  @IsString()
+  mfaToken: string;
+
+  @IsNotEmpty()
+  @IsString()
+  code: string;
 }
 
 export class CurrentUserResponseDto {

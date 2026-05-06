@@ -43,8 +43,11 @@ npm run dev:frontend
 - API Docs: http://localhost:3002/api/docs
 
 Demo credentials:
-- Email: demo@example.com
-- Password: password123
+- Employee: demo@example.com / password123
+- Manager: manager@example.com / password123
+- Team member: team.member@example.com / password123
+
+These accounts are created by `npm run seed` and are meant for testing role-based login flows.
 
 ## BRD Verification (Module 5.1 and 5.2)
 

@@ -7,6 +7,7 @@ import {
   ChangePasswordDto,
   SetupMfaDto,
   VerifyMfaSetupDto,
+  VerifyLoginMfaDto,
   AuthResponseDto,
   RefreshTokenDto,
   CurrentUserResponseDto,
@@ -96,6 +97,16 @@ export class AuthController {
   ) {
     const ipAddress = req.ip || req.socket?.remoteAddress || '127.0.0.1';
     return this.authService.verifyMfaSetup(user.sub, verifyDto, ipAddress);
+  }
+
+  @Post('mfa/login-verify')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Verify MFA challenge during login (AUTH-02)' })
+  @ApiResponse({ status: 200, description: 'MFA login verification successful', type: AuthResponseDto })
+  async verifyLoginMfa(@Body() verifyDto: VerifyLoginMfaDto, @Req() req: Request) {
+    const ipAddress = req.ip || req.socket?.remoteAddress || '127.0.0.1';
+    const userAgent = req.get('user-agent') || '';
+    return this.authService.verifyLoginMfa(verifyDto.mfaToken, verifyDto.code, ipAddress, userAgent);
   }
 
   @Get('me')

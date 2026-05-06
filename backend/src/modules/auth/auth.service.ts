@@ -83,26 +83,23 @@ export class AuthService {
       where: { userId: user.id, isEnabled: true },
     });
 
-    // Generate tokens
-    const accessToken = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      role: user.role.roleName,
-    });
+    if (mfaSetup) {
+      const mfaToken = this.jwtService.sign(
+        {
+          sub: user.id,
+          purpose: 'mfa_login',
+        },
+        { expiresIn: process.env.MFA_LOGIN_TOKEN_EXPIRES_IN || '5m' },
+      );
 
-    const refreshToken = this.generateRefreshToken();
-    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+      return {
+        mfaRequired: true,
+        mfaToken,
+        user: this.buildUserResponse(user, true),
+      };
+    }
 
-    // Save session
-    const session = this.sessionRepository.create({
-      userId: user.id,
-      accessTokenHash: await bcrypt.hash(accessToken, 10),
-      refreshTokenHash,
-      ipAddress,
-      userAgent,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    });
-    await this.sessionRepository.save(session);
+    const { accessToken, refreshToken } = await this.issueTokensAndSession(user, ipAddress, userAgent);
 
     // Log successful login
     await this.logAuditEvent(user.id, 'User', user.id, OperationType.LOGIN, null, { email: user.email }, 'success', null, ipAddress, userAgent);
@@ -111,7 +108,64 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+      mfaRequired: false,
       user: this.buildUserResponse(user, !!mfaSetup),
+    };
+  }
+
+  async verifyLoginMfa(mfaToken: string, code: string, ipAddress: string, userAgent: string) {
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(mfaToken);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired MFA token');
+    }
+
+    if (payload?.purpose !== 'mfa_login' || !payload?.sub) {
+      throw new UnauthorizedException('Invalid MFA login token');
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+      relations: ['role', 'role.permissions'],
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const mfaSetup = await this.mfaSetupRepository.findOne({
+      where: { userId: user.id, isEnabled: true },
+    });
+
+    if (!mfaSetup) {
+      throw new BadRequestException('MFA is not enabled for this user');
+    }
+
+    if (mfaSetup.mfaMethod !== MfaMethod.TOTP) {
+      throw new BadRequestException('Only TOTP MFA is supported for login verification');
+    }
+
+    const isValid = speakeasy.totp.verify({
+      secret: mfaSetup.secret,
+      encoding: 'base32',
+      token: code,
+      window: parseInt(process.env.MFA_WINDOW || '1'),
+    });
+
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid MFA verification code');
+    }
+
+    const { accessToken, refreshToken } = await this.issueTokensAndSession(user, ipAddress, userAgent);
+
+    await this.logEventLog(user.id, EventCategory.AUTH, 'LOGIN_MFA_VERIFIED', 'User completed MFA login verification');
+
+    return {
+      accessToken,
+      refreshToken,
+      mfaRequired: true,
+      user: this.buildUserResponse(user, true),
     };
   }
 
@@ -365,6 +419,29 @@ export class AuthService {
 
   private generateRefreshToken(): string {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+
+  private async issueTokensAndSession(user: User, ipAddress: string, userAgent: string) {
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      email: user.email,
+      role: user.role.roleName,
+    });
+
+    const refreshToken = this.generateRefreshToken();
+    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+
+    const session = this.sessionRepository.create({
+      userId: user.id,
+      accessTokenHash: await bcrypt.hash(accessToken, 10),
+      refreshTokenHash,
+      ipAddress,
+      userAgent,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    await this.sessionRepository.save(session);
+
+    return { accessToken, refreshToken };
   }
 
   private async logAuditEvent(

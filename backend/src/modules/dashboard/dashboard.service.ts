@@ -281,7 +281,7 @@ export class DashboardService {
     const currentDay = today.getDate();
 
     // Get all employees with birthdays/anniversaries this month
-    const allProfiles = await this.employeeProfileRepository.find();
+    const allProfiles = await this.employeeProfileRepository.find({ relations: ['user'] });
 
     const birthdays = allProfiles
       .filter((p) => {
@@ -384,8 +384,30 @@ export class DashboardService {
    * Get configured tiles for an employee (or return default)
    */
   async getQuickAccessTiles(userId: number) {
-    // For now, return all tiles. Later, this can be stored per-user preference
-    return this.getQuickAccessTileOptions();
+    // Check if user has configured tiles preference
+    // For now, return all available tiles (frontend will display up to 3 configurable)
+    const options = this.getQuickAccessTileOptions();
+    return options;
+  }
+
+  /**
+   * Save user's quick-access tile preferences
+   * Note: In a real implementation, this would be stored in a user_preferences table
+   * For now, we return success and frontend can manage state locally
+   */
+  async saveQuickAccessTilePreferences(userId: number, selectedTiles: string[]) {
+    // Validate: max 3 tiles allowed
+    if (selectedTiles.length > 3) {
+      throw new Error('Maximum 3 tiles can be selected');
+    }
+    // Validate: all tiles must be valid
+    const validIds = this.getQuickAccessTileOptions().map(t => t.id);
+    const allValid = selectedTiles.every(id => validIds.includes(id));
+    if (!allValid) {
+      throw new Error('Invalid tile selection');
+    }
+    // TODO: Store preferences in database
+    return { success: true, selectedTiles };
   }
 
   /**

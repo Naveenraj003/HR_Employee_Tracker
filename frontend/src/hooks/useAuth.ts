@@ -18,7 +18,8 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (loginId: string, password: string) => Promise<void>;
+  login: (loginId: string, password: string) => Promise<{ requiresMfa: boolean; mfaToken?: string }>;
+  verifyLoginMfa: (mfaToken: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
   setupMfa: (mfaMethod: 'totp' | 'sms' | 'email', phoneNumber?: string) => Promise<any>;
@@ -52,6 +53,25 @@ export const useAuth = (): AuthContextType => {
     setIsLoading(true);
     try {
       const response = await apiClient.login(loginId, password);
+      if (response.data?.mfaRequired && response.data?.mfaToken) {
+        return { requiresMfa: true, mfaToken: response.data.mfaToken as string };
+      }
+
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      setUser(response.data.user);
+      notifyAuthChanged();
+      navigate('/dashboard');
+      return { requiresMfa: false };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [navigate, notifyAuthChanged]);
+
+  const verifyLoginMfa = useCallback(async (mfaToken: string, code: string) => {
+    setIsLoading(true);
+    try {
+      const response = await apiClient.verifyLoginMfa(mfaToken, code);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       setUser(response.data.user);
@@ -122,6 +142,7 @@ export const useAuth = (): AuthContextType => {
     isLoading,
     isAuthenticated: !!user,
     login,
+    verifyLoginMfa,
     logout,
     changePassword,
     setupMfa,

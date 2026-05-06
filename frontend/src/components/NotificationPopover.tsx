@@ -92,7 +92,7 @@ export const NotificationPopover = ({ unreadCount }: { unreadCount: number }) =>
     if (!metadata) return '';
     const amount = metadata.amount || metadata.salary || metadata.value;
     if (!amount) return '';
-    return ` • $${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return ` • ${Number(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   return (
