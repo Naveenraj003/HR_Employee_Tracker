@@ -84,12 +84,13 @@ export class AuthService {
     });
 
     if (mfaSetup) {
+      const mfaTokenExpiresIn = (process.env.MFA_LOGIN_TOKEN_EXPIRES_IN || '5m') as string;
       const mfaToken = this.jwtService.sign(
         {
           sub: user.id,
           purpose: 'mfa_login',
         },
-        { expiresIn: process.env.MFA_LOGIN_TOKEN_EXPIRES_IN || '5m' },
+        { expiresIn: mfaTokenExpiresIn as any },
       );
 
       return {

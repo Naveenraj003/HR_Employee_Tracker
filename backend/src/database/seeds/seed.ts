@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../app.module';
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../../modules/auth/entities/role.entity';
 import { User, AccountStatus } from '../../modules/user/entities/user.entity';
@@ -10,6 +10,7 @@ import { LeaveBalance, LeaveType } from '../../modules/dashboard/entities/leave-
 import { Holiday } from '../../modules/dashboard/entities/holiday.entity';
 import { Notification, NotificationType } from '../../modules/dashboard/entities/notification.entity';
 import { LeaveRequest, LeaveRequestStatus } from '../../modules/dashboard/entities/leave-request.entity';
+import { MfaSetup } from '../../modules/auth/entities/mfa-setup.entity';
 
 async function seed() {
   const app = await NestFactory.create(AppModule);
@@ -163,6 +164,10 @@ async function seed() {
       console.log('✅ Demo team profile created');
     }
 
+    // Keep the demo login accounts password-only so the default login flow is predictable.
+    await dataSource.getRepository(MfaSetup).delete({
+      userId: In([demoUser.id, managerUser.id, teamUser.id]),
+    });
     // Seed attendance records for the last 30 days
     const existingAttendance = await dataSource.getRepository(AttendanceRecord).count({
       where: { userId: demoUser.id },
